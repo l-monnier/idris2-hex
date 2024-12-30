@@ -1,0 +1,10 @@
+[custom.all.idris2-hex]
+type = "local"
+path = "."
+ipkg = "idris2-hex.ipkg"
+test = "test/test.ipkg"
+
+[custom.all.idris2-hex-test]
+type = "local"
+path = "test"
+ipkg = "test.ipkg"
