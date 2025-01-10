@@ -33,17 +33,21 @@ data Symbol =
 
 ||| A hexadecimal number.
 |||
-||| The hexadecimal number consists of a vector of `Symbol`.
+||| The hexadecimal number consists of a `List` of `Symbol`s.
 export
 data Hex : Type where
   MkHex : List Symbol -> Hex
 
 public export
 Semigroup Hex where
+
+  ||| Concatenation of two `Hex` treated as `List`s.
   (MkHex xs) <+> (MkHex ys) = MkHex (xs <+> ys)
 
 public export
 Monoid Hex where
+
+  ||| The empty `Hex` without any `Symbol`.
   neutral = MkHex neutral 
 
 private
@@ -139,8 +143,15 @@ toIntegerHelper list@(x :: xs) =
 
 ||| Convertion of a hexadecimal number to an `Integer`.
 |||
-||| Note that leading zeros will get removed.
+||| # Notes
+|||
+||| Leading zeros will get removed.
 ||| For example, `"00a"` will be converted to `10`.
+|||
+||| If all you want is to get the integer value of a hexadecimal number
+||| it is easier to just type `0x` and your hexadecimal number.
+||| It will get directly converted to an `Integer` by Idris.
+||| For example, `0x42` is converted to `66`.
 public export
 Cast Hex Integer where
   cast (MkHex xs) = toIntegerHelper xs
