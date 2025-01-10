@@ -163,7 +163,7 @@ Cast Integer Hex where
           in
           -- The function is total, because each `result` is smaller
           -- and the function converges to 0, which is the termination case.
-          prepend
+          snoc
             (assert_total $ the Hex $ cast result)
             (integerToSymbol remain)
           where
