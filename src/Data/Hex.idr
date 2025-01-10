@@ -156,15 +156,6 @@ public export
 Cast Hex Integer where
   cast (MkHex xs) = toIntegerHelper xs
 
-||| Convertion of a hexadecimal number to an `Integer`.
-|||
-||| Note that the conversion is not isomorphic
-||| as leading zeros will get removed.
-||| For example, `"00a"` will be converted to `10`.
-public export
-Cast Hex Nat where
-  cast = cast . the Integer . cast
-
 public export
 Cast Integer Hex where
   cast val =
