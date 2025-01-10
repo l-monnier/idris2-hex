@@ -36,11 +36,19 @@ data Symbol =
 ||| The hexadecimal number consists of a vector of `Symbol`.
 export
 data Hex : Type where
-  MkHex : {n : Nat} -> Vect n Symbol -> Hex
+  MkHex : List Symbol -> Hex
+
+public export
+Semigroup Hex where
+  (MkHex xs) <+> (MkHex ys) = MkHex (xs <+> ys)
+
+public export
+Monoid Hex where
+  neutral = MkHex neutral 
 
 private
 prepend : Hex -> Symbol -> Hex
-prepend (MkHex vect) symbol = MkHex (snoc vect symbol)
+prepend (MkHex xs) symbol = MkHex (snoc xs symbol)
 
 private
 fromChar : (c : Char) -> {auto 0 prf : Hexit c} -> Symbol
@@ -72,7 +80,7 @@ private
 fromStringHelper :
      (l : List Char)
   -> {auto 0 prf : All Hexit l}
-  -> Vect (length l) Symbol
+  -> List Symbol
 fromStringHelper [] = []
 fromStringHelper (x :: xs) {prf = (a :: b)} = fromChar x :: fromStringHelper xs
 
@@ -120,10 +128,10 @@ integerToSymbol 15 = HexF
 integerToSymbol _  = Hex0
 
 private
-toIntHelper : {n : Nat} -> Vect n Symbol -> Integer
-toIntHelper [] = 0
-toIntHelper {n = S len} (x :: xs) =
-  (symbolToInt x) * (16 ^ cast len) + toIntHelper xs
+toIntegerHelper : List Symbol -> Integer
+toIntegerHelper [] = 0
+toIntegerHelper list@(x :: xs) =
+  (symbolToInt x) * (16 ^ length list) + toIntegerHelper xs
 
 ||| Convertion of a hexadecimal number to an `Integer`.
 |||
@@ -131,7 +139,7 @@ toIntHelper {n = S len} (x :: xs) =
 ||| For example, `"00a"` will be converted to `10`.
 public export
 Cast Hex Integer where
-  cast (MkHex vect) = toIntHelper vect
+  cast (MkHex xs) = toIntegerHelper xs
 
 ||| Convertion of a hexadecimal number to an `Integer`.
 |||
@@ -146,7 +154,7 @@ public export
 Cast Integer Hex where
   cast val =
     case decEq val 0 of
-      (Yes _) => MkHex []
+      (Yes _) => neutral
       (No _) =>
           let
             (val' ** _)   = maxGt0 val
