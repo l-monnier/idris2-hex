@@ -131,7 +131,7 @@ private
 toIntegerHelper : List Symbol -> Integer
 toIntegerHelper [] = 0
 toIntegerHelper list@(x :: xs) =
-  (symbolToInt x) * (16 ^ length list) + toIntegerHelper xs
+  (symbolToInteger x) * (16 ^ length xs) + toIntegerHelper xs
 
 ||| Convertion of a hexadecimal number to an `Integer`.
 |||
