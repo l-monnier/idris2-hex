@@ -3,9 +3,11 @@ module Data.Hex
 import Data.List.Quantifiers
 import Data.Monoid.Exponentiation
 import Data.Refined.Char
+import Data.Refined.Integer
 import Data.Refined.String
 import Data.String
 import Data.Vect
+import Decidable.Equality
 
 %default total
 
@@ -35,6 +37,10 @@ data Symbol =
 export
 data Hex : Type where
   MkHex : {n : Nat} -> Vect n Symbol -> Hex
+
+private
+prepend : Hex -> Symbol -> Hex
+prepend (MkHex vect) symbol = MkHex (snoc vect symbol)
 
 private
 fromChar : (c : Char) -> {auto 0 prf : Hexit c} -> Symbol
@@ -94,6 +100,26 @@ symbolToInt HexE = 14
 symbolToInt HexF = 15
 
 private
+integerToSymbol : (x : Integer) -> {auto 0 prf : ((0 <=) && (16 >)) x} -> Symbol
+integerToSymbol 0  = Hex0
+integerToSymbol 1  = Hex1
+integerToSymbol 2  = Hex2
+integerToSymbol 3  = Hex3
+integerToSymbol 4  = Hex4
+integerToSymbol 5  = Hex5
+integerToSymbol 6  = Hex6
+integerToSymbol 7  = Hex7
+integerToSymbol 8  = Hex8
+integerToSymbol 9  = Hex9
+integerToSymbol 10 = HexA
+integerToSymbol 11 = HexB
+integerToSymbol 12 = HexC
+integerToSymbol 13 = HexD
+integerToSymbol 14 = HexE
+integerToSymbol 15 = HexF
+integerToSymbol _  = Hex0
+
+private
 toIntHelper : {n : Nat} -> Vect n Symbol -> Integer
 toIntHelper [] = 0
 toIntHelper {n = S len} (x :: xs) =
@@ -115,3 +141,56 @@ Cast Hex Integer where
 public export
 Cast Hex Nat where
   cast = cast . the Integer . cast
+
+public export
+Cast Integer Hex where
+  cast val =
+    case decEq val 0 of
+      (Yes _) => MkHex []
+      (No _) =>
+          let
+            (val' ** _)   = maxGt0 val
+            (result ** _) = div16LtQ val'
+            (remain ** _) = mod16 val'
+          in
+          -- The function is total, because each `result` is smaller
+          -- and the function converges to 0, which is the termination case.
+          prepend
+            (assert_total $ the Hex $ cast result)
+            (integerToSymbol remain)
+          where
+            -- Axioms
+
+            -- The max value between 0 and any integer is at least 0.
+            maxGt0 : (x : Integer) -> (result ** 0 <= result)
+            maxGt0 x = let result = max 0 x in (result ** believe_me result)
+
+            -- For any integer from 0,
+            -- its division by 16 leads to a result of at leat 0.
+            div16LtQ :
+                 (quotient : Integer)
+              -> {auto 0 prf : 0 <= quotient}
+              -> (result ** (0 <= result))
+            div16LtQ quotient =
+              let result = quotient `div` 16 in (result ** believe_me result)
+
+            -- For any integer from 0,
+            -- its remainder when divided by 16
+            -- will be between 0 and 15 included.
+            mod16 :
+              (quotient : Integer)
+              -> {auto 0 prf : 0 <= quotient}
+              -> (result ** ((0 <=) && (16 >)) result)
+            mod16 quotient =
+              let result = quotient `mod` 16 in (result ** believe_me result)
+
+public export
+Num Hex where
+  x + y = cast $ the Integer (cast x + cast y)
+  x * y = cast $ the Integer (cast x * cast y)
+  fromInteger = cast
+
+public export
+Integral Hex where
+  div x y = cast $ the Integer (cast x `div` cast y)
+  mod x y = cast $ the Integer (cast x `mod` cast y)
