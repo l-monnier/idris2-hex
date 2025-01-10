@@ -47,8 +47,8 @@ Monoid Hex where
   neutral = MkHex neutral 
 
 private
-prepend : Hex -> Symbol -> Hex
-prepend (MkHex xs) symbol = MkHex (snoc xs symbol)
+snoc : Hex -> Symbol -> Hex
+snoc (MkHex xs) symbol = MkHex (snoc xs symbol)
 
 private
 fromChar : (c : Char) -> {auto 0 prf : Hexit c} -> Symbol
