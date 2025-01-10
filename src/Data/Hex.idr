@@ -84,28 +84,32 @@ fromStringHelper :
 fromStringHelper [] = []
 fromStringHelper (x :: xs) {prf = (a :: b)} = fromChar x :: fromStringHelper xs
 
+||| Converts a `String` in which all characters are `Symbol`s to an `Hex`.
+|||
+||| This means that all characters must be either digits or letters from a to f.
+||| To put it another way, it must match the regular expression `^[0-9A-Fa-f]*$`.
 public export
 fromString : (s : String) -> {auto 0 prf : Str (All Hexit) s} -> Hex
 fromString str {prf = (HoldsOn x)} = MkHex $ fromStringHelper $ unpack str
 
 private
-symbolToInt : Symbol -> Integer
-symbolToInt Hex0 = 0
-symbolToInt Hex1 = 1
-symbolToInt Hex2 = 2
-symbolToInt Hex3 = 3
-symbolToInt Hex4 = 4
-symbolToInt Hex5 = 5
-symbolToInt Hex6 = 6
-symbolToInt Hex7 = 7
-symbolToInt Hex8 = 8
-symbolToInt Hex9 = 9
-symbolToInt HexA = 10
-symbolToInt HexB = 11
-symbolToInt HexC = 12
-symbolToInt HexD = 13
-symbolToInt HexE = 14
-symbolToInt HexF = 15
+symbolToInteger : Symbol -> Integer
+symbolToInteger Hex0 = 0
+symbolToInteger Hex1 = 1
+symbolToInteger Hex2 = 2
+symbolToInteger Hex3 = 3
+symbolToInteger Hex4 = 4
+symbolToInteger Hex5 = 5
+symbolToInteger Hex6 = 6
+symbolToInteger Hex7 = 7
+symbolToInteger Hex8 = 8
+symbolToInteger Hex9 = 9
+symbolToInteger HexA = 10
+symbolToInteger HexB = 11
+symbolToInteger HexC = 12
+symbolToInteger HexD = 13
+symbolToInteger HexE = 14
+symbolToInteger HexF = 15
 
 private
 integerToSymbol : (x : Integer) -> {auto 0 prf : ((0 <=) && (16 >)) x} -> Symbol
