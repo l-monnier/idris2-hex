@@ -6,7 +6,6 @@ import Data.Refined.Char
 import Data.Refined.Integer
 import Data.Refined.String
 import Data.String
-import Data.Vect
 import Decidable.Equality
 import Derive.Prelude
 
