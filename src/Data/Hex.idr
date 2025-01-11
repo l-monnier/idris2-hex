@@ -1,3 +1,6 @@
+||| This module provides functions for hexadecimal numbers creation
+||| from `String`s, convertion to `Integer`s, basic interfaces and
+||| arithmetic operations.
 module Data.Hex
 
 import Data.List.Quantifiers
