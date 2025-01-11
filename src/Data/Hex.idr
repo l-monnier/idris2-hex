@@ -8,8 +8,10 @@ import Data.Refined.String
 import Data.String
 import Data.Vect
 import Decidable.Equality
+import Derive.Prelude
 
 %default total
+%language ElabReflection
 
 ||| Hexadecimal symbols from 0 to F.
 export
@@ -31,6 +33,7 @@ data Symbol =
   | HexE
   | HexF
 
+%runElab derive "Symbol" [Eq, Show]
 ||| A hexadecimal number.
 |||
 ||| The hexadecimal number consists of a `List` of `Symbol`s.
@@ -38,17 +41,7 @@ export
 data Hex : Type where
   MkHex : List Symbol -> Hex
 
-public export
-Semigroup Hex where
-
-  ||| Concatenation of two `Hex` treated as `List`s.
-  (MkHex xs) <+> (MkHex ys) = MkHex (xs <+> ys)
-
-public export
-Monoid Hex where
-
-  ||| The empty `Hex` without any `Symbol`.
-  neutral = MkHex neutral 
+%runElab derive "Hex" [Eq, Monoid, Semigroup, Show]
 
 private
 snoc : Hex -> Symbol -> Hex
@@ -114,6 +107,9 @@ symbolToInteger HexC = 12
 symbolToInteger HexD = 13
 symbolToInteger HexE = 14
 symbolToInteger HexF = 15
+
+Ord Symbol where
+  compare x y = compare (symbolToInteger x) (symbolToInteger y)
 
 private
 integerToSymbol : (x : Integer) -> {auto 0 prf : ((0 <=) && (16 >)) x} -> Symbol
