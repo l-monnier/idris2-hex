@@ -36,6 +36,7 @@ data Symbol =
   | HexF
 
 %runElab derive "Symbol" [Eq, Show]
+
 ||| A hexadecimal number.
 |||
 ||| The hexadecimal number consists of a `List` of `Symbol`s.
@@ -110,6 +111,7 @@ symbolToInteger HexD = 13
 symbolToInteger HexE = 14
 symbolToInteger HexF = 15
 
+public export
 Ord Symbol where
   compare x y = compare (symbolToInteger x) (symbolToInteger y)
 
