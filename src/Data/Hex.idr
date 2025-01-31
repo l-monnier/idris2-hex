@@ -170,6 +170,14 @@ toIntegerHelper [] = 0
 toIntegerHelper list@(x :: xs) =
   (symbolToInteger x) * (16 ^ length xs) + toIntegerHelper xs
 
+||| Convertion of a hexadecimal symbol to a hexadecimal number.
+Cast Symbol Hex where
+  cast symb = MkHex [symb]
+
+||| Convertion of a `Tuple` of hexadecimal symbols to a hexadecimal number.
+Cast (Symbol, Symbol) Hex where
+  cast tup = MkHex [fst tup, snd tup]
+
 ||| Convertion of a hexadecimal number to an `Integer`.
 |||
 ||| # Notes
@@ -226,6 +234,22 @@ Cast Integer Hex where
               -> (result ** ((0 <=) && (16 >)) result)
             mod16 quotient =
               let result = quotient `mod` 16 in (result ** believe_me result)
+
+public export
+Cast Hex Int where
+  cast hex = cast $ the Integer $ cast hex
+
+public export
+Cast Hex Double where
+  cast hex = cast $ the Integer $ cast hex
+
+public export
+Cast Hex (List Symbol) where
+  cast (MkHex xs) = xs
+
+public export
+Ord Hex where
+  compare x y = compare (the Integer $ cast x) (the Integer $ cast y)
 
 public export
 Num Hex where
