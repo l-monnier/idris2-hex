@@ -40,17 +40,21 @@ data Symbol =
 ||| A hexadecimal number.
 |||
 ||| The hexadecimal number consists of a `List` of `Symbol`s.
-export
+public export
 data Hex : Type where
   MkHex : List Symbol -> Hex
 
-%runElab derive "Hex" [Eq, Monoid, Semigroup, Show]
+%runElab derive "Hex" [Eq, Semigroup, Monoid, Show]
 
 private
 snoc : Hex -> Symbol -> Hex
 snoc (MkHex xs) symbol = MkHex (snoc xs symbol)
 
-private
+||| Creates a `Symbol` from a `Char`.
+|||
+||| Only characters which are digits or letters from a to f are accepted.
+||| In other words, it must match the regular expression `^[0-9A-Fa-f]*$`.
+public export
 fromChar : (c : Char) -> {auto 0 prf : Hexit c} -> Symbol
 fromChar '0' = Hex0
 fromChar '1' = Hex1
