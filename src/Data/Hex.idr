@@ -80,21 +80,46 @@ fromChar 'e' = HexE
 fromChar 'f' = HexF
 fromChar _   = Hex0
 
-private
-fromStringHelper :
+||| Converts a hexadecimal 'Symbol' to a 'Char'.
+public export
+toChar : Symbol -> Char
+toChar Hex0 = '0'
+toChar Hex1 = '1'
+toChar Hex2 = '2'
+toChar Hex3 = '3'
+toChar Hex4 = '4'
+toChar Hex5 = '5'
+toChar Hex6 = '6'
+toChar Hex7 = '7'
+toChar Hex8 = '8'
+toChar Hex9 = '9'
+toChar HexA = 'A'
+toChar HexB = 'B'
+toChar HexC = 'C'
+toChar HexD = 'D'
+toChar HexE = 'E'
+toChar HexF = 'F'
+
+||| Converts a `List` of `Char`s to a `Hex`.
+|||
+||| All characters must be either digits or letters from a to f.
+||| In other words, they must be part of the `[0-9A-Fa-f]` set.
+public export
+fromList :
      (l : List Char)
   -> {auto 0 prf : All Hexit l}
   -> List Symbol
-fromStringHelper [] = []
-fromStringHelper (x :: xs) {prf = (a :: b)} = fromChar x :: fromStringHelper xs
+fromList [] = []
+fromList (x :: xs) {prf = a :: b} = fromChar x :: fromList xs
 
-||| Converts a `String` in which all characters are `Symbol`s to an `Hex`.
+||| Converts a `String` to a `Hex`.
 |||
-||| This means that all characters must be either digits or letters from a to f.
-||| To put it another way, it must match the regular expression `^[0-9A-Fa-f]*$`.
+||| All characters must be either digits or letters from a to f.
+||| In other words, the `String` must match the regular expression
+||| `^[0-9A-Fa-f]*$`.
 public export
 fromString : (s : String) -> {auto 0 prf : Str (All Hexit) s} -> Hex
-fromString str {prf = (HoldsOn x)} = MkHex $ fromStringHelper $ unpack str
+fromString str {prf = (HoldsOn x)} = MkHex $ fromList $ unpack str
 
 private
 symbolToInteger : Symbol -> Integer
