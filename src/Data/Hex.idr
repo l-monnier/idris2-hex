@@ -3,7 +3,7 @@
 ||| arithmetic operations.
 module Data.Hex
 
-import Data.List.Quantifiers
+import Data.List1.Quantifiers
 import Data.Monoid.Exponentiation
 import Data.Refined.Char
 import Data.Refined.Integer
@@ -42,9 +42,9 @@ data Symbol =
 ||| The hexadecimal number consists of a `List` of `Symbol`s.
 public export
 data Hex : Type where
-  MkHex : List Symbol -> Hex
+  MkHex : List1 Symbol -> Hex
 
-%runElab derive "Hex" [Eq, Semigroup, Monoid, Show]
+%runElab derive "Hex" [Eq, Semigroup, Show]
 
 private
 snoc : Hex -> Symbol -> Hex
@@ -100,17 +100,22 @@ toChar HexD = 'D'
 toChar HexE = 'E'
 toChar HexF = 'F'
 
-||| Converts a `List` of `Char`s to a `Hex`.
+||| Converts a `List` of `Char`s to a `List1` of `Symbol`s.
 |||
 ||| All characters must be either digits or letters from a to f.
 ||| In other words, they must be part of the `[0-9A-Fa-f]` set.
 public export
 fromList :
      (l : List Char)
-  -> {auto 0 prf : All Hexit l}
-  -> List Symbol
-fromList [] = []
-fromList (x :: xs) {prf = a :: b} = fromChar x :: fromList xs
+  -> {auto 0 prf1 : NonEmpty l}
+  -> {auto 0 prf2 : All Hexit l}
+  -> List1 Symbol
+fromList (x :: xs) {prf1 = IsNonEmpty} {prf2 = a :: b} =
+  fromChar x ::: fromList' xs
+  where
+    fromList' : (l : List Char) -> {auto 0 prf : All Hexit l} -> List Symbol
+    fromList' [] = []
+    fromList' (x :: xs) {prf = a :: b} = fromChar x :: fromList' xs
 
 ||| Converts a `String` to a `Hex`.
 |||
@@ -118,8 +123,8 @@ fromList (x :: xs) {prf = a :: b} = fromChar x :: fromList xs
 ||| In other words, the `String` must match the regular expression
 ||| `^[0-9A-Fa-f]*$`.
 public export
-fromString : (s : String) -> {auto 0 prf : Str (All Hexit) s} -> Hex
-fromString str {prf = (HoldsOn x)} = MkHex $ fromList $ unpack str
+fromString : (s : String) -> {auto 0 prf1 : NonEmpty (unpack s)} -> {auto 0 prf2 : Str (All Hexit) s} -> Hex
+fromString str {prf2 = (HoldsOn x)} = MkHex $ fromList $ unpack str
 
 private
 symbolToInteger : Symbol -> Integer
@@ -165,18 +170,22 @@ integerToSymbol 15 = HexF
 integerToSymbol _  = Hex0
 
 private
-toIntegerHelper : List Symbol -> Integer
-toIntegerHelper [] = 0
-toIntegerHelper list@(x :: xs) =
-  (symbolToInteger x) * (16 ^ length xs) + toIntegerHelper xs
+toIntegerHelper : List1 Symbol -> Integer
+toIntegerHelper (head ::: tail) =
+  (symbolToInteger head) * (16 ^ length tail) + toIntegerHelper' tail
+  where
+    toIntegerHelper' : List Symbol -> Integer
+    toIntegerHelper' [] = 0
+    toIntegerHelper' (x :: xs) =
+      (symbolToInteger x) * (16 ^ length xs) + toIntegerHelper' xs
 
 ||| Convertion of a hexadecimal symbol to a hexadecimal number.
 Cast Symbol Hex where
-  cast symb = MkHex [symb]
+  cast symb = MkHex (pure symb)
 
 ||| Convertion of a `Tuple` of hexadecimal symbols to a hexadecimal number.
 Cast (Symbol, Symbol) Hex where
-  cast tup = MkHex [fst tup, snd tup]
+  cast tup = MkHex (?tupToList1 tup)
 
 ||| Convertion of a hexadecimal number to an `Integer`.
 |||
@@ -197,7 +206,7 @@ public export
 Cast Integer Hex where
   cast val =
     case decEq val 0 of
-      (Yes _) => neutral
+      (Yes _) => "0"
       (No _) =>
           let
             (val' ** _)   = maxGt0 val
@@ -244,7 +253,7 @@ Cast Hex Double where
   cast hex = cast $ the Integer $ cast hex
 
 public export
-Cast Hex (List Symbol) where
+Cast Hex (List1 Symbol) where
   cast (MkHex xs) = xs
 
 public export
