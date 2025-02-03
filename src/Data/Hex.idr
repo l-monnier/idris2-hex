@@ -184,7 +184,7 @@ Ord Symbol where
 Cast Symbol Hex where
   cast symb = MkHex (pure symb)
 
-||| Convertion of a `Tuple` of hexadecimal symbols to a hexadecimal number.
+||| Convertion of a `Pair` of hexadecimal symbols to a hexadecimal number.
 Cast (Symbol, Symbol) Hex where
   cast (x, y) = MkHex (x ::: [y])
 
