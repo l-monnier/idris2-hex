@@ -186,7 +186,7 @@ Cast Symbol Hex where
 
 ||| Convertion of a `Tuple` of hexadecimal symbols to a hexadecimal number.
 Cast (Symbol, Symbol) Hex where
-  cast tup = MkHex (?tupToList1 tup)
+  cast (x, y) = MkHex (x ::: [y])
 
 ||| Convertion of a hexadecimal number to an `Integer`.
 |||
