@@ -214,11 +214,14 @@ Cast Integer Hex where
             (result ** _) = div16LtQ val'
             (remain ** _) = mod16 val'
           in
-          -- The function is total, because each `result` is smaller
-          -- and the function converges to 0, which is the termination case.
-          snoc
-            (assert_total $ the Hex $ cast result)
-            (integerToSymbol remain)
+          case result of
+            0 => MkHex (integerToSymbol remain ::: [])
+            r =>
+              -- The function is total, because each `result` is smaller
+              -- and the function converges to 0, which is the termination case.
+              snoc
+                (assert_total $ the Hex $ cast result)
+                (integerToSymbol remain)
           where
             -- Axioms
 
