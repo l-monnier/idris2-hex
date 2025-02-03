@@ -145,10 +145,6 @@ symbolToInteger HexD = 13
 symbolToInteger HexE = 14
 symbolToInteger HexF = 15
 
-public export
-Ord Symbol where
-  compare x y = compare (symbolToInteger x) (symbolToInteger y)
-
 private
 integerToSymbol : (x : Integer) -> {auto 0 prf : ((0 <=) && (16 >)) x} -> Symbol
 integerToSymbol 0  = Hex0
@@ -178,6 +174,10 @@ toIntegerHelper (head ::: tail) =
     toIntegerHelper' [] = 0
     toIntegerHelper' (x :: xs) =
       (symbolToInteger x) * (16 ^ length xs) + toIntegerHelper' xs
+
+public export
+Ord Symbol where
+  compare x y = compare (symbolToInteger x) (symbolToInteger y)
 
 ||| Convertion of a hexadecimal symbol to a hexadecimal number.
 Cast Symbol Hex where
