@@ -163,12 +163,13 @@ integerToSymbol 12 = HexC
 integerToSymbol 13 = HexD
 integerToSymbol 14 = HexE
 integerToSymbol 15 = HexF
+-- Cannot be reached.
 integerToSymbol _  = Hex0
 
 private
 toIntegerHelper : List1 Symbol -> Integer
 toIntegerHelper (head ::: tail) =
-  (symbolToInteger head) * (16 ^ length tail) + toIntegerHelper' tail
+  toIntegerHelper' (head :: tail)
   where
     toIntegerHelper' : List Symbol -> Integer
     toIntegerHelper' [] = 0
