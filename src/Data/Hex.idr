@@ -44,7 +44,7 @@ public export
 data Hex : Type where
   MkHex : List1 Symbol -> Hex
 
-%runElab derive "Hex" [Eq, Semigroup, Show]
+%runElab derive "Hex" [Semigroup, Show]
 
 private
 snoc : Hex -> Symbol -> Hex
@@ -260,6 +260,21 @@ public export
 Cast Hex (List1 Symbol) where
   cast (MkHex xs) = xs
 
+||| Leading zeros are ignored for equality.
+||| For example, hex "0101" equals hex "101".
+|||
+||| If you want leading zeros to matter, convert first the `Hex` to `String`s.
+|||
+||| ```idris example
+|||
+||| toString hex0101 == toString hex101
+||| > result = False
+||| ```
+Eq Hex where
+  x == y = (the Integer $ cast x) == (the Integer $ cast y)
+
+||| Leading zeros are ignored for equality.
+||| For example, hex "0101" is smaller or equal to hex "101".
 public export
 Ord Hex where
   compare x y = compare (the Integer $ cast x) (the Integer $ cast y)
