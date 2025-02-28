@@ -324,3 +324,10 @@ public export
 Integral Hex where
   div x y = cast $ the Integer (cast x `div` cast y)
   mod x y = cast $ the Integer (cast x `mod` cast y)
+
+||| Subtracts hexadecimal numbers.
+|||
+||| If the second number is larger than the first, returns 0.
+public export
+minus : Hex -> Hex -> Hex
+minus x y = cast $ max 0 (the Integer (cast x - cast y))
