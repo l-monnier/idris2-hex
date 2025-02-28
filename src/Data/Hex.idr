@@ -203,6 +203,9 @@ public export
 Cast Hex Integer where
   cast (MkHex xs) = toIntegerHelper xs
 
+||| Convertion of an `Integer` to a hexadecimal number.
+|||
+||| Negative integers are converted to '0'.
 public export
 Cast Integer Hex where
   cast val =
