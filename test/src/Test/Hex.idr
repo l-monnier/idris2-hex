@@ -6,7 +6,6 @@ import Data.Hex
 
 import Data.Refined.String
 import Data.String
-import Decidable.Equality
 
 %default total
 
