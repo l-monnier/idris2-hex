@@ -121,10 +121,26 @@ fromList (x :: xs) {prf1 = IsNonEmpty} {prf2 = a :: b} =
 |||
 ||| All characters must be either digits or letters from a to f.
 ||| In other words, the `String` must match the regular expression
-||| `^[0-9A-Fa-f]*$`.
+||| `^[0-9A-Fa-f]+$`.
 public export
 fromString : (s : String) -> {auto 0 prf1 : NonEmpty (unpack s)} -> {auto 0 prf2 : Str (All Hexit) s} -> Hex
 fromString str {prf2 = (HoldsOn x)} = MkHex $ fromList $ unpack str
+
+||| Converts a `String` to `Maybe Hex`.
+|||
+||| For `Just Hex` to be returned, all characters must be either digits or
+||| letters from a to f.
+||| In other words, the `String` must match the regular expression
+||| `^[0-9A-Fa-f]+$`.
+||| Otherwise, `Nothing` is returned.
+public export
+maybeHex : String -> Maybe Hex
+maybeHex str =
+  case hdec0 {p = NonEmpty} (unpack str) of
+    Just0 prf1 => case hdec0 {p = Str (All Hexit)} str of
+                    Just0 prf2 => Just (fromString str)
+                    Nothing0   => Nothing
+    Nothing0   => Nothing
 
 private
 symbolToInteger : Symbol -> Integer
