@@ -331,3 +331,39 @@ Integral Hex where
 public export
 minus : Hex -> Hex -> Hex
 minus x y = cast $ max 0 (the Integer (cast x - cast y))
+
+--------------------------------------------------------------------------------
+-- Compile Time Tests
+--------------------------------------------------------------------------------
+
+private
+TestHex0 : Hex
+TestHex0 = MkHex (pure Hex0)
+
+private
+TestHex16 : Hex
+TestHex16 = MkHex (Hex1 ::: [Hex0])
+
+private
+TestHex257 : Hex
+TestHex257 = MkHex (Hex1 ::: [Hex0, Hex1])
+
+private
+test0 : cast 0 = TestHex0
+test0 = Refl
+
+private
+test16 : the Hex (cast 16) = TestHex16
+test16 = Refl
+
+private
+test257 : cast 257 = TestHex257
+test257 = Refl
+
+failing
+  testNonValidChar : Hex
+  testNonValidChar = fromString "G"
+
+failing
+  testNonValidChars : Hex
+  testNonValidChars = fromString "0Gh"
