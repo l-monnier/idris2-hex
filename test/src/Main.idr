@@ -1,4 +1,10 @@
 module Main
 
+import Hedgehog
+
+import Test.Hex
+
+%default total
+
 main : IO ()
-main = putStrLn "Test successful!"
+main = test [Hex.props]
