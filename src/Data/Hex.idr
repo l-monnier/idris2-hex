@@ -200,6 +200,9 @@ Ord Symbol where
 Cast Symbol Hex where
   cast symb = MkHex (pure symb)
 
+Cast Symbol Char where
+  cast = toChar
+
 ||| Convertion of a `Pair` of hexadecimal symbols to a hexadecimal number.
 Cast (Symbol, Symbol) Hex where
   cast (x, y) = MkHex (x ::: [y])
@@ -278,6 +281,19 @@ Cast Hex Double where
 public export
 Cast Hex (List1 Symbol) where
   cast (MkHex xs) = xs
+
+public export
+Cast Hex (List Symbol) where
+  cast hex = toList $ the (List1 Symbol) $ cast hex
+
+||| Converts a `Hex` to a `String`.
+public export
+toString : Hex -> String
+toString = pack . map toChar . cast
+
+public export
+Cast Hex String where
+  cast = toString
 
 ||| Leading zeros are ignored for equality.
 ||| For example, hex "0101" equals hex "101".
