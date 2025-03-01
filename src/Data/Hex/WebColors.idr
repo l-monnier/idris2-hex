@@ -107,8 +107,8 @@ fromString str {prf2 = (Right x)} = list8ToWebColor (tail $ unpack str)
 
 ||| Converts a `WebColor` to a `String`.
 public export
-Cast WebColor String where
-  cast (MkWebColor r g b a) =
+toString : WebColor -> String
+toString (MkWebColor r g b a) =
         "#"
     <+> tupleToString r
     <+> tupleToString g
@@ -117,6 +117,10 @@ Cast WebColor String where
     where
       tupleToString : (Symbol, Symbol) -> String
       tupleToString (s1, s2) = singleton (toChar s1) <+> singleton (toChar s2)
+
+public export
+Cast WebColor String where
+  cast = toString
 
 ||| Converts a `WebColor` to a RGBA representation.
 |||
