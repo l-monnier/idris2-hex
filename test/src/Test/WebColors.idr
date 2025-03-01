@@ -22,7 +22,8 @@ import Data.String
 private
 testString6 : Property
 testString6 = property1 $
-   fromString "#ab42cd" === MkWebColor (HexA, HexB) (Hex4, Hex2) (HexC, HexD) Nothing
+   fromString "#ab42cd"
+     === MkWebColor (HexA, HexB) (Hex4, Hex2) (HexC, HexD) Nothing
 
 public export
 props : Group
