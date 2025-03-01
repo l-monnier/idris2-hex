@@ -14,7 +14,7 @@ import Derive.Prelude
 %default total
 
 ||| A  web color.
-export
+public export
 data WebColor =
   MkWebColor
     (Symbol, Symbol)

@@ -16,7 +16,7 @@ import Derive.Prelude
 %language ElabReflection
 
 ||| Hexadecimal symbols from 0 to F.
-export
+public export
 data Symbol =
     Hex0
   | Hex1

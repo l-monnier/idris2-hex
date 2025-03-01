@@ -12,5 +12,6 @@ depends = base >= 0.5.1
         , refined
 
 modules = Data.Hex
+        , Data.Hex.WebColors
 
 sourcedir = "src"
