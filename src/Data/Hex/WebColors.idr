@@ -182,3 +182,37 @@ additiveMixing color1 color2 =
           ((Just x), (Just y)) => Just (x + y)
   in
   fromHex r g b a
+
+--------------------------------------------------------------------------------
+-- Compile Time Test
+--------------------------------------------------------------------------------
+
+failing
+  private
+  testStringNoSharp : WebColor
+  testStringNoSharp = fromString "123456"
+
+failing
+  private
+  testString2Sharp : WebColor
+  testString2Sharp = fromString "##123456"
+
+failing
+  private
+  testString5 : WebColor
+  testString5 = fromString "#12345"
+
+failing
+  private
+  testString7 : WebColor
+  testString7 = fromString "#1234567"
+
+failing
+  private
+  testString9 : WebColor
+  testString9 = fromString "#123456789"
+
+failing
+  private
+  testStringBadChar : WebColor
+  testStringBadChar = fromString "#12H456"
