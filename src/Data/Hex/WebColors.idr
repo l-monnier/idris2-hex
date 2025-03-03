@@ -105,6 +105,34 @@ fromString :
 fromString str {prf2 = (Left x)}  = list6ToWebColor (tail $ unpack str)
 fromString str {prf2 = (Right x)} = list8ToWebColor (tail $ unpack str)
 
+private
+HDec0 Char (Equal '#') where
+  hdec0 '#' = Just0 Refl
+  hdec0 _   = Nothing0
+
+private
+HDec0 Nat (\s => Either (6 = s) (8 = s)) where
+  hdec0 6 = Nothing0
+  hdec0 8 = Nothing0
+  hdec0 _ = Nothing0
+
+-- TODO: find a way to implement this function.
+public export
+maybeWebColor : String -> Maybe WebColor
+maybeWebColor str =
+  let
+    list = unpack str
+  in
+  case hdec0 {p = NonEmpty} list of
+    Just0 prf1 => case hdec0 {p = \s => Either (6 = s) (8 = s)} (length $ tail list) of
+                    Just0 prf2 => case hdec0 {p = Equal '#'} (head list) of
+                                    Just0 prf3 => case hdec0 {p = All Hexit} (tail list) of
+                                                    Just0 prf4 => ?what --Just (fromString {prf1} str)
+                                                    Nothing0   => Nothing
+                                    Nothing0   => Nothing
+                    Nothing0   => Nothing
+    Nothing0   => Nothing
+
 ||| Converts a `WebColor` to a `String`.
 public export
 toString : WebColor -> String
