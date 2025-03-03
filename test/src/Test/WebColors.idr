@@ -11,9 +11,16 @@ import Data.String
 %default total
 
 --------------------------------------------------------------------------------
--- Values
+-- Generators
 --------------------------------------------------------------------------------
 
+private
+strGen : Gen String
+strGen = do
+  b <- bool
+  let len = the Nat $ if b then 6 else 8
+  xs <- list (linear len len) hexit
+  pure $ "#" <+> pack xs
 
 --------------------------------------------------------------------------------
 -- Unit tests
@@ -30,6 +37,10 @@ testString8 : Property
 testString8 = property1 $
    fromString "#6af24eb3"
      === MkWebColor (Hex6, HexA) (HexF, Hex2) (Hex4, HexE) (Just (HexB, Hex3))
+
+--------------------------------------------------------------------------------
+-- Property tests
+--------------------------------------------------------------------------------
 
 public export
 props : Group
