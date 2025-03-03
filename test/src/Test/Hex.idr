@@ -90,16 +90,15 @@ testHexLeading0Equals = property1 $
 -- Property tests
 --------------------------------------------------------------------------------
 
-||| TODO find the name of this property.
 private
-propReverse : Property
-propReverse = property $ do
+propInvertible : Property
+propInvertible = property $ do
   x <- forAll n0Gen
   x === (the Integer $ cast $ the Hex $ cast x)
 
 private
-propReverseStr : Property
-propReverseStr = property $ do
+propInvertibleStr : Property
+propInvertibleStr = property $ do
   str <- forAll strGen
   case maybeHex str of
     Just hex => toUpper str === toString hex
@@ -168,8 +167,8 @@ props = MkGroup "Test `Hex`"
   , ("Prop hex 101 to `Integer`", testHex101ToInteger)
   , ("Prop hex with leading 0 to `Integer`", testHexLeading0ToInteger)
   , ("Prop leading 0 do not change equality", testHexLeading0Equals)
-  , ("Prop reverse", propReverse)
-  , ("Prop reverse `String`", propReverseStr)
+  , ("Prop invertible", propInvertible)
+  , ("Prop invertible `String`", propInvertibleStr)
   , ("Prop addition is isomorphic", propIsoAdd)
   , ("Prop division is isomorphic", propIsoDiv)
   , ("Prop modulos are isomorphic", propIsoMod)
