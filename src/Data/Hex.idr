@@ -6,7 +6,6 @@ module Data.Hex
 import Data.Monoid.Exponentiation
 import Data.Refined.Integer
 import Data.Refined.String
-import Decidable.Equality
 import Derive.Prelude
 
 %default total
@@ -170,7 +169,7 @@ symbolToInteger HexE = 14
 symbolToInteger HexF = 15
 
 private
-integerToSymbol : (x : Integer) -> {auto 0 prf : ((0 <=) && (16 >)) x} -> Symbol
+integerToSymbol : (x : Integer) -> {auto 0 prf : FromTo 0 15 x} -> Symbol
 integerToSymbol 0  = Hex0
 integerToSymbol 1  = Hex1
 integerToSymbol 2  = Hex2
@@ -236,9 +235,9 @@ Cast Hex Integer where
 public export
 Cast Integer Hex where
   cast val =
-    case decEq val 0 of
-      (Yes _) => "0"
-      (No _) =>
+    case hdec0 {p = GreaterThan 0} val of
+      Nothing0 => "0"
+      Just0 _  =>
           let
             (val' ** _)   = maxGt0 val
             (result ** _) = div16LtQ val'
@@ -274,7 +273,7 @@ Cast Integer Hex where
             mod16 :
               (quotient : Integer)
               -> {auto 0 prf : 0 <= quotient}
-              -> (result ** ((0 <=) && (16 >)) result)
+              -> (result ** FromTo 0 15 result)
             mod16 quotient =
               let result = quotient `mod` 16 in (result ** believe_me result)
 
