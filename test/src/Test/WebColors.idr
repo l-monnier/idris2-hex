@@ -27,14 +27,14 @@ strGen = do
 --------------------------------------------------------------------------------
 
 private
-testString6 : Property
-testString6 = property1 $
+testString7 : Property
+testString7 = property1 $
    fromString "#ab42cd"
      === MkWebColor (HexA, HexB) (Hex4, Hex2) (HexC, HexD) Nothing
 
 private
-testString8 : Property
-testString8 = property1 $
+testString9 : Property
+testString9 = property1 $
    fromString "#6af24eb3"
      === MkWebColor (Hex6, HexA) (HexF, Hex2) (Hex4, HexE) (Just (HexB, Hex3))
 
@@ -42,9 +42,22 @@ testString8 = property1 $
 -- Property tests
 --------------------------------------------------------------------------------
 
+private
+propInvertible : Property
+propInvertible = property $ do
+  s <- forAll strGen
+  case WebColors.fromStringMaybe s of
+    Just hex => toUpper s === toString hex
+    Nothing  => s === "This string shouldn't have been generated"
+
+--------------------------------------------------------------------------------
+-- Tests
+--------------------------------------------------------------------------------
+
 public export
 props : Group
 props = MkGroup "Test `Web Colors`"
-  [ ("Prop string 6", testString6)
-  , ("Prop string 8", testString8)
+  [ ("Prop string 7", testString7)
+  , ("Prop string 9", testString9)
+  , ("Prop invertible", propInvertible)
   ]

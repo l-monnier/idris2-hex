@@ -2,12 +2,11 @@
 module Data.Hex.WebColors
 
 import Data.Hex
-import Data.Refined.Integer
+import Data.Refined.Char
 import Data.Refined.String
 import Data.String
-import Data.Vect
-import Data.Vect.Quantifiers
 import Decidable.Equality
+import Decidable.HDec
 import Derive.Prelude
 
 %language ElabReflection
@@ -44,94 +43,101 @@ public export
 alpha : WebColor -> Maybe Hex
 alpha (MkWebColor _ _ _ a) = map cast a
 
-||| Converts a `List` of 6 elements to a `WebColor`.
-private
-list6ToWebColor :
-     (xs : List Char)
-  -> {auto 0 prf1 : 6 = length xs}
-  -> {auto prf2 : All Hexit xs}
-  -> WebColor
-list6ToWebColor
-  (r1 :: r2 :: g1 :: g2 :: b1 :: b2 :: [])
-  {prf2 = (a :: b :: c :: d :: e :: f :: h)} =
-  MkWebColor
-    (fromChar r1, fromChar r2)
-    (fromChar g1, fromChar g2)
-    (fromChar b1, fromChar b2)
-    Nothing
+||| Proof that the first element of `List` of `Char` is `#`.
+public export
+data StartWithSharp : List Char -> Type where
+  Here : StartWithSharp ('#' :: cs)
 
-||| Converts a `List` of 8 elements to a `WebColor`.
-private
-list8ToWebColor :
-     (xs : List Char)
-  -> {auto 0 prf1 : 8 = length xs}
-  -> {auto prf2 : All Hexit xs}
-  -> WebColor
-list8ToWebColor
-  (r1 :: r2 :: g1 :: g2 :: b1 :: b2 :: a1 :: a2 :: [])
-  {prf2 = (a :: b :: c :: d :: e :: f :: h :: i :: j)} =
-  MkWebColor
-    (fromChar r1, fromChar r2)
-    (fromChar g1, fromChar g2)
-    (fromChar b1, fromChar b2)
-    (Just (fromChar a1, fromChar a2))
+public export
+HDec0 (List Char) StartWithSharp where
+  hdec0 ('#' :: _) = Just0 Here
+  hdec0 _          = Nothing0
+
+||| Proof that all remaining elemnets of a `List` of `Char` are hexadecimal.
+public export
+data TailHexit : List Char -> Type where
+  There : All Hexit t -> TailHexit (c :: t)
+
+public export
+HDec0 (List Char) TailHexit where
+  hdec0 []       = Nothing0
+  hdec0 [c]      = Nothing0
+  hdec0 (c :: t) = case hdec0 {p = All Hexit} t of
+                     Just0 prf => Just0 (There prf)
+                     Nothing0  => Nothing0
+
+||| Proof that a `List` has a length of 7 elements.
+public export
+data Length7 : List a -> Type where
+  Here7 : Length7 (a :: b :: c :: d :: e :: f :: g :: [])
+
+public export
+HDec0 (List a) Length7 where
+  hdec0 (a :: b :: c :: d :: e :: f :: g :: []) =
+    Just0 Here7
+  hdec0 _ =
+    Nothing0
+
+||| Proof that a `List` has a length of 9 elements.
+public export
+data Length9 : List a -> Type where
+  Here9 : Length9 (a :: b :: c :: d :: e :: f :: g :: h :: i :: [])
+
+public export
+HDec0 (List a) Length9 where
+  hdec0 (a :: b :: c :: d :: e :: f :: g :: h :: i :: []) =
+    Just0 Here9
+  hdec0 _ =
+    Nothing0
+
+public export
+0 IsWebColor : String -> Type
+IsWebColor = Str $ StartWithSharp && TailHexit && (Length7 || Length9)
+
+||| Converts a `List` to `Maybe` a `WebColor`.
+|||
+||| The list must be 7 or 9 character long.
+||| Its first element must be '#'.
+||| All the remaining elements must be hexadecimal characters.
+public export
+fromListMaybe : List Char -> Maybe WebColor
+fromListMaybe ('#' :: r1 :: r2 :: g1 :: g2 :: b1 :: b2 :: cs) = do
+  let mkWebCol = MkWebColor
+                   (!(fromCharMaybe r1), !(fromCharMaybe r2))
+                   (!(fromCharMaybe g1), !(fromCharMaybe g2))
+                   (!(fromCharMaybe b1), !(fromCharMaybe b2))
+  case cs of
+    []               => pure $ mkWebCol Nothing
+    (a1 :: a2 :: []) => pure $ mkWebCol $ Just
+                          (!(fromCharMaybe a1), !(fromCharMaybe a2))
+    _                => Nothing
+fromListMaybe _ = Nothing
+
+||| Creates `Maybe` a `WebColor` from a `String`.
+|||
+||| To return `Just` a `WebColor` the provided 'String' must:
+||| - start with a '#';
+||| - all remaining characters must be hexadecimal ones ([0-9a-fA-F]); and
+||| - be of 7 or 9 characters long.
+public export
+fromStringMaybe : String -> Maybe WebColor
+fromStringMaybe str =
+  case hdec0 {p = IsWebColor} str of
+    Just0 prf => fromListMaybe (unpack str)
+    Nothing0 => Nothing
 
 ||| Creates a `WebColor` from a `String`.
 |||
-||| To be valid the provided 'String' must start with a '#'
-||| and the rest of the 'String' must:
-||| - be of 6 or 8 characters long; and
-||| - all characters must be hexadecimal ones ([0-9a-fA-F]).
+||| To be valid the provided 'String' must:
+||| - start with a '#';
+||| - all remaining characters must be hexadecimal ones ([0-9a-fA-F]); and
+||| - be of 7 or 9 characters long.
 public export
 fromString :
-     (str : String)
-  -> let
-       list : List Char
-       list = unpack str
-     in
-     {auto prf1 : NonEmpty list}
-  -> let
-       xs : List Char
-       xs = tail list
-       
-       size = length xs
-     in
-     {auto prf2 :
-       Either (6 = size) (8 = size)
-     }
-  -> {auto prf3 : '#' = head list}
-  -> {auto prf4 : All Hexit xs}
+     (s : String)
+  -> {auto 0 prf : IsJust (WebColors.fromStringMaybe s)}
   -> WebColor
-fromString str {prf2 = (Left x)}  = list6ToWebColor (tail $ unpack str)
-fromString str {prf2 = (Right x)} = list8ToWebColor (tail $ unpack str)
-
-private
-HDec0 Char (Equal '#') where
-  hdec0 '#' = Just0 Refl
-  hdec0 _   = Nothing0
-
-private
-HDec0 Nat (\s => Either (6 = s) (8 = s)) where
-  hdec0 6 = Nothing0
-  hdec0 8 = Nothing0
-  hdec0 _ = Nothing0
-
--- TODO: find a way to implement this function.
-public export
-maybeWebColor : String -> Maybe WebColor
-maybeWebColor str =
-  let
-    list = unpack str
-  in
-  case hdec0 {p = NonEmpty} list of
-    Just0 prf1 => case hdec0 {p = \s => Either (6 = s) (8 = s)} (length $ tail list) of
-                    Just0 prf2 => case hdec0 {p = Equal '#'} (head list) of
-                                    Just0 prf3 => case hdec0 {p = All Hexit} (tail list) of
-                                                    Just0 prf4 => ?what --Just (fromString {prf1} str)
-                                                    Nothing0   => Nothing
-                                    Nothing0   => Nothing
-                    Nothing0   => Nothing
-    Nothing0   => Nothing
+fromString s = fromJust $ fromStringMaybe s
 
 ||| Converts a `WebColor` to a `String`.
 public export
@@ -218,6 +224,16 @@ additiveMixing color1 color2 =
 --------------------------------------------------------------------------------
 -- Compile Time Test
 --------------------------------------------------------------------------------
+
+private
+testL7 : fromString "#ab42cd" =
+  MkWebColor (HexA, HexB) (Hex4, Hex2) (HexC, HexD) Nothing
+testL7 = Refl
+
+private
+testL9 : fromString "#ab42cd24" =
+  MkWebColor (HexA, HexB) (Hex4, Hex2) (HexC, HexD) (Just (Hex2, Hex4))
+testL9 = Refl
 
 failing
   private

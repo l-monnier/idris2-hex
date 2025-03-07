@@ -3,12 +3,9 @@
 ||| arithmetic operations.
 module Data.Hex
 
-import Data.List1.Quantifiers
 import Data.Monoid.Exponentiation
-import Data.Refined.Char
 import Data.Refined.Integer
 import Data.Refined.String
-import Data.String
 import Decidable.Equality
 import Derive.Prelude
 
@@ -50,35 +47,39 @@ private
 snoc : Hex -> Symbol -> Hex
 snoc (MkHex xs) symbol = MkHex (snoc xs symbol)
 
+public export
+fromCharMaybe : Char -> Maybe Symbol
+fromCharMaybe '0' = Just Hex0
+fromCharMaybe '1' = Just Hex1
+fromCharMaybe '2' = Just Hex2
+fromCharMaybe '3' = Just Hex3
+fromCharMaybe '4' = Just Hex4
+fromCharMaybe '5' = Just Hex5
+fromCharMaybe '6' = Just Hex6
+fromCharMaybe '7' = Just Hex7
+fromCharMaybe '8' = Just Hex8
+fromCharMaybe '9' = Just Hex9
+fromCharMaybe 'A' = Just HexA
+fromCharMaybe 'B' = Just HexB
+fromCharMaybe 'C' = Just HexC
+fromCharMaybe 'D' = Just HexD
+fromCharMaybe 'E' = Just HexE
+fromCharMaybe 'F' = Just HexF
+fromCharMaybe 'a' = Just HexA
+fromCharMaybe 'b' = Just HexB
+fromCharMaybe 'c' = Just HexC
+fromCharMaybe 'd' = Just HexD
+fromCharMaybe 'e' = Just HexE
+fromCharMaybe 'f' = Just HexF
+fromCharMaybe _   = Nothing
+
 ||| Creates a `Symbol` from a `Char`.
 |||
 ||| Only characters which are digits or letters from a to f are accepted.
 ||| In other words, it must match the regular expression `^[0-9A-Fa-f]*$`.
 public export
-fromChar : (c : Char) -> {auto 0 prf : Hexit c} -> Symbol
-fromChar '0' = Hex0
-fromChar '1' = Hex1
-fromChar '2' = Hex2
-fromChar '3' = Hex3
-fromChar '4' = Hex4
-fromChar '5' = Hex5
-fromChar '6' = Hex6
-fromChar '7' = Hex7
-fromChar '8' = Hex8
-fromChar '9' = Hex9
-fromChar 'A' = HexA
-fromChar 'B' = HexB
-fromChar 'C' = HexC
-fromChar 'D' = HexD
-fromChar 'E' = HexE
-fromChar 'F' = HexF
-fromChar 'a' = HexA
-fromChar 'b' = HexB
-fromChar 'c' = HexC
-fromChar 'd' = HexD
-fromChar 'e' = HexE
-fromChar 'f' = HexF
-fromChar _   = Hex0
+fromChar : (c : Char) -> {auto 0 prf : IsJust (fromCharMaybe c)} -> Symbol
+fromChar c = fromJust $ fromCharMaybe c
 
 ||| Converts a hexadecimal 'Symbol' to a 'Char'.
 public export
@@ -100,31 +101,31 @@ toChar HexD = 'D'
 toChar HexE = 'E'
 toChar HexF = 'F'
 
+||| Converts a `List` of `Char`s to a `Maybe` a `List1` of `Symbol`s.
+|||
+||| All characters must be either digits or letters from a to f.
+||| In other words, they must be part of the `[0-9A-Fa-f]` set.
+||| The `List` must not be empty.
+public export
+fromListMaybe : List Char -> Maybe (List1 Symbol)
+fromListMaybe [] = Nothing
+fromListMaybe (c :: cs) =
+  case hdec0 {p = All Hexit} (c :: cs) of
+  Nothing0  => Nothing
+  (Just0 _) => do
+    pure (!(fromCharMaybe c) ::: !((sequence . map fromCharMaybe) cs))
+
 ||| Converts a `List` of `Char`s to a `List1` of `Symbol`s.
 |||
 ||| All characters must be either digits or letters from a to f.
 ||| In other words, they must be part of the `[0-9A-Fa-f]` set.
+||| The `List` must not be empty.
 public export
 fromList :
      (l : List Char)
-  -> {auto 0 prf1 : NonEmpty l}
-  -> {auto 0 prf2 : All Hexit l}
+  -> {auto 0 prf : IsJust (fromListMaybe l)}
   -> List1 Symbol
-fromList (x :: xs) {prf1 = IsNonEmpty} {prf2 = a :: b} =
-  fromChar x ::: fromList' xs
-  where
-    fromList' : (l : List Char) -> {auto 0 prf : All Hexit l} -> List Symbol
-    fromList' [] = []
-    fromList' (x :: xs) {prf = a :: b} = fromChar x :: fromList' xs
-
-||| Converts a `String` to a `Hex`.
-|||
-||| All characters must be either digits or letters from a to f.
-||| In other words, the `String` must match the regular expression
-||| `^[0-9A-Fa-f]+$`.
-public export
-fromString : (s : String) -> {auto 0 prf1 : NonEmpty (unpack s)} -> {auto 0 prf2 : Str (All Hexit) s} -> Hex
-fromString str {prf2 = (HoldsOn x)} = MkHex $ fromList $ unpack str
+fromList l = fromJust $ fromListMaybe l
 
 ||| Converts a `String` to `Maybe Hex`.
 |||
@@ -134,13 +135,20 @@ fromString str {prf2 = (HoldsOn x)} = MkHex $ fromList $ unpack str
 ||| `^[0-9A-Fa-f]+$`.
 ||| Otherwise, `Nothing` is returned.
 public export
-maybeHex : String -> Maybe Hex
-maybeHex str =
-  case hdec0 {p = NonEmpty} (unpack str) of
-    Just0 prf1 => case hdec0 {p = Str (All Hexit)} str of
-                    Just0 prf2 => Just (fromString str)
-                    Nothing0   => Nothing
-    Nothing0   => Nothing
+fromStringMaybe : String -> Maybe Hex
+fromStringMaybe "" = Nothing
+fromStringMaybe s  = case hdec0 {p = Str (All Hexit)} s of
+  Nothing0  => Nothing
+  (Just0 _) => MkHex <$> (fromListMaybe $ unpack s)
+
+||| Converts a `String` to a `Hex`.
+|||
+||| All characters must be either digits or letters from a to f.
+||| In other words, the `String` must match the regular expression
+||| `^[0-9A-Fa-f]+$`.
+public export
+fromString : (s : String) -> {auto 0 prf : IsJust (fromStringMaybe s)} -> Hex
+fromString s = fromJust $ fromStringMaybe s
 
 private
 symbolToInteger : Symbol -> Integer
@@ -179,7 +187,7 @@ integerToSymbol 12 = HexC
 integerToSymbol 13 = HexD
 integerToSymbol 14 = HexE
 integerToSymbol 15 = HexF
--- Cannot be reached.
+-- Cannot be reached
 integerToSymbol _  = Hex0
 
 private
@@ -359,6 +367,18 @@ test16 = Refl
 private
 test257 : cast 257 = TestHex257
 test257 = Refl
+
+private
+test0Str : fromString "0" = TestHex0
+test0Str = Refl
+
+private
+test16Str : fromString "10" = TestHex16
+test16Str = Refl
+
+private
+test257Str : fromString "101" = TestHex257
+test257Str = Refl
 
 failing
   testNonValidChar : Hex

@@ -100,7 +100,7 @@ private
 propInvertibleStr : Property
 propInvertibleStr = property $ do
   str <- forAll strGen
-  case maybeHex str of
+  case fromStringMaybe str of
     Just hex => toUpper str === toString hex
     Nothing  => str === "This string shouldn't have been generated"
 
@@ -158,6 +158,10 @@ propNegTo0 : Property
 propNegTo0 = property $ do
   x <- forAll negGen
   hex0 === the Hex (cast x)
+
+--------------------------------------------------------------------------------
+-- Tests
+--------------------------------------------------------------------------------
 
 public export
 props : Group
