@@ -1,13 +1,10 @@
 ||| Web colours specified using hexadecimal colour codes.
 module Data.Hex.WebColors
 
-import Data.Hex
-import Data.Refined.Char
-import Data.Refined.String
-import Data.String
-import Decidable.Equality
-import Decidable.HDec
 import Derive.Prelude
+import Data.Refined.Char
+
+import public Data.Hex
 
 %language ElabReflection
 %default total

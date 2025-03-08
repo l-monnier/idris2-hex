@@ -5,8 +5,10 @@ module Data.Hex
 
 import Data.Monoid.Exponentiation
 import Data.Refined.Integer
-import Data.Refined.String
 import Derive.Prelude
+
+import public Data.List1
+import public Data.Refined.String
 
 %default total
 %language ElabReflection

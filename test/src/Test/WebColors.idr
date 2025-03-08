@@ -2,11 +2,7 @@ module Test.WebColors
 
 import Hedgehog
 
-import Data.Hex
 import Data.Hex.WebColors
-
-import Data.List1
-import Data.Refined.String
 import Data.String
 
 %default total

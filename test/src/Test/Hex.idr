@@ -3,8 +3,6 @@ module Test.Hex
 import Hedgehog
 
 import Data.Hex
-
-import Data.Refined.String
 import Data.String
 
 %default total
