@@ -5,6 +5,7 @@ import Hedgehog
 import Data.Hex
 import Data.Hex.WebColors
 
+import Data.List1
 import Data.Refined.String
 import Data.String
 
@@ -38,6 +39,18 @@ testString9 = property1 $
    fromString "#6af24eb3"
      === MkWebColor (Hex6, HexA) (HexF, Hex2) (Hex4, HexE) (Just (HexB, Hex3))
 
+private
+testFromHex : Property
+testFromHex = property1 $
+   fromHex "a" "a42" "cd" Nothing
+     === MkWebColor (Hex0, HexA) (HexF, HexF) (HexC, HexD) Nothing
+
+private
+testFromHexAlpha : Property
+testFromHexAlpha = property1 $
+   fromHex "cd" "F" "100" (Just "3F")
+     === MkWebColor (HexC, HexD) (Hex0, HexF) (HexF, HexF) (Just (Hex3, HexF))
+
 --------------------------------------------------------------------------------
 -- Property tests
 --------------------------------------------------------------------------------
@@ -59,5 +72,7 @@ props : Group
 props = MkGroup "Test `Web Colors`"
   [ ("Prop string 7", testString7)
   , ("Prop string 9", testString9)
+  , ("Test from hex", testFromHex)
+  , ("Test from hex with alpha", testFromHexAlpha)
   , ("Prop invertible", propInvertible)
   ]
