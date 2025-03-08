@@ -179,7 +179,7 @@ toRGBA color =
 ||| Converts a `Hex` to a tuple of two `Symbol`s.
 |||
 ||| If the `Hex` is greater than `FF`, then the value is clamped to `FF`.
-private
+public export
 hexToTuple : Hex -> (Symbol, Symbol)
 hexToTuple x =
   case min x "FF" of
