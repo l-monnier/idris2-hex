@@ -66,8 +66,8 @@ propInvertible = property $ do
 public export
 props : Group
 props = MkGroup "Test `Web Colors`"
-  [ ("Prop string 7", testString7)
-  , ("Prop string 9", testString9)
+  [ ("Test string 7", testString7)
+  , ("Test string 9", testString9)
   , ("Test from hex", testFromHex)
   , ("Test from hex with alpha", testFromHexAlpha)
   , ("Prop invertible", propInvertible)

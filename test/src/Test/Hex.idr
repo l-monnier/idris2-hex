@@ -164,11 +164,11 @@ propNegTo0 = property $ do
 public export
 props : Group
 props = MkGroup "Test `Hex`"
-  [ ("Prop hex 0 to `Integer`", testHex0ToInteger)
-  , ("Prop hex 10 to `Integer`", testHex10ToInteger)
-  , ("Prop hex 101 to `Integer`", testHex101ToInteger)
-  , ("Prop hex with leading 0 to `Integer`", testHexLeading0ToInteger)
-  , ("Prop leading 0 do not change equality", testHexLeading0Equals)
+  [ ("Test hex 0 to `Integer`", testHex0ToInteger)
+  , ("Test hex 10 to `Integer`", testHex10ToInteger)
+  , ("Test hex 101 to `Integer`", testHex101ToInteger)
+  , ("Test hex with leading 0 to `Integer`", testHexLeading0ToInteger)
+  , ("Test leading 0 do not change equality", testHexLeading0Equals)
   , ("Prop invertible", propInvertible)
   , ("Prop invertible `String`", propInvertibleStr)
   , ("Prop addition is isomorphic", propIsoAdd)
