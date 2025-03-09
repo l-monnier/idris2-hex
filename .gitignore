@@ -1,4 +1,5 @@
 build/
 idris-response
+*.swo
 *.swp
 *.*~
