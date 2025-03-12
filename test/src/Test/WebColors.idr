@@ -47,6 +47,18 @@ testFromHexAlpha = property1 $
    fromHex "cd" "F" "100" (Just "3F")
      === MkWebColor (HexC, HexD) (Hex0, HexF) (HexF, HexF) (Just (Hex3, HexF))
 
+private
+testAdditiveMixing : Property
+testAdditiveMixing = property1 $
+   additiveMixing "#111111" "#111111"
+     === MkWebColor (Hex2, Hex2) (Hex2, Hex2) (Hex2, Hex2) Nothing
+
+private
+testAdditiveMixingAlpha : Property
+testAdditiveMixingAlpha = property1 $
+   additiveMixing "#44444444" "#22222222"
+     === MkWebColor (Hex6, Hex6) (Hex6, Hex6) (Hex6, Hex6) (Just (Hex6, Hex6))
+
 --------------------------------------------------------------------------------
 -- Property tests
 --------------------------------------------------------------------------------
@@ -57,6 +69,14 @@ propInvertible = property $ do
   s <- forAll strGen
   case WebColors.fromStringMaybe s of
     Just hex => toUpper s === toString hex
+    Nothing  => s === "This string shouldn't have been generated"
+
+private
+propAddAboveFF : Property
+propAddAboveFF = property $ do
+  s <- forAll strGen
+  case WebColors.fromStringMaybe s of
+    Just hex => let ff = "#FFFFFFFF" in additiveMixing hex ff === ff
     Nothing  => s === "This string shouldn't have been generated"
 
 --------------------------------------------------------------------------------
@@ -70,5 +90,8 @@ props = MkGroup "Test `Web Colors`"
   , ("Test string 9", testString9)
   , ("Test from hex", testFromHex)
   , ("Test from hex with alpha", testFromHexAlpha)
+  , ("Test additive mixing", testAdditiveMixing)
+  , ("Test additive mixing alpha", testAdditiveMixingAlpha)
   , ("Prop invertible", propInvertible)
+  , ("Prop add above FF", propAddAboveFF)
   ]
