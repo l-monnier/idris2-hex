@@ -3,7 +3,7 @@ Hexadecimal library in Idris.
 
 # Purpose
 
-This library is first and foremost a personal project for learning Idris.
+This library is first and foremost a personal learning project.
 Its practical use is rather limited.
 
 # Features
@@ -11,10 +11,10 @@ Its practical use is rather limited.
 ## String conversion
 
 You can converts `String`s to `Hex` using the `fromString` function.
-Such strings are validated at compile time. Only non-empty `String`s with only
+Such strings are validated at compile time. Only non-empty `String`s with 
 valid hexadecimal characters will be accepted.
 
-Both styles with upper case or lower case are accepted.
+Upper and lower case letters are accepted.
 For example, `a4` and `A4` are valid.
 
 ## Numeric operations
